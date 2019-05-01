@@ -111,6 +111,71 @@ int round(float x)
 {
 return (int)(x+0.5);
 }
+void SimpleDDA(HDC hdc,int xs,int ys,int xe,int ye,COLORREF color)
+{
+   int dx=xe-xs;
+   int dy=ye-ys;
+    SetPixel(hdc,xs,ys,color);
+   if(abs(dx)>=abs(dy))
+ {
+  int x=xs,xinc= dx>0?1:-1;
+  double y=ys,yinc=(double)dy/dx*xinc;
+  while(x!=xe)
+ {
+  x+=xinc;
+  y+=yinc;
+  SetPixel(hdc,x,round(y),color);
+ }
+ }
+ else
+{
+  int y=ys,yinc= dy>0?1:-1;
+  double x=xs,xinc=(double)dx/dy*yinc;
+ while(y!=ye)
+{
+   x+=xinc;
+   y+=yinc;
+   SetPixel(hdc,round(x),y,color);
+}
+}
+}
+void midPoint(HDC hdc,int X1, int Y1, int X2, int Y2,COLORREF color)
+{
+    int dx = X2 - X1;
+    int dy = Y2 - Y1;
+    int d = dy - (dx/2);
+    int x = X1, y = Y1;
+   SetPixel(hdc,x,y,color);
+
+
+    while (x < X2)
+    {
+        x++;
+
+
+        if (d < 0)
+            d = d + dy;
+
+
+        else
+        {
+            d += (dy - dx);
+            y++;
+        }
+
+        SetPixel(hdc,x,y,color);
+
+    }
+}
+void parametric_line(HDC hdc,int x1,int x2,int y1,int y2,COLORREF color ){
+ for(double t=0;t<=1;t+=0.001){
+    int x=round(x1+t*(x2-x1));
+    int y=round(y1+t*(y2-y1));
+    SetPixel(hdc,x,y,color);
+ }
+
+}
+
 //clipping
 struct Vertex2{
     double x,y;
@@ -181,76 +246,46 @@ void PolygonClip(HDC hdc,POINT *p,int n,int xleft,int ytop,int xright,int ybotto
     Vertex2 v1=vlist[vlist.size()-1];
     for(int i=0;i<(int)vlist.size();i++){
         Vertex2 v2=vlist[i];
-        MoveToEx(hdc,round(v1.x),round(v1.y),NULL);
-        LineTo(hdc,round(v2.x),round(v2.y));
+        SimpleDDA(hdc,round(v1.x),round(v1.y),round(v2.x),round(v2.y),RGB(255,0,0));
+       // MoveToEx(hdc,round(v1.x),round(v1.y),NULL);
+       // LineTo(hdc,round(v2.x),round(v2.y));
         v1=v2;
     }
 }
 
-void SimpleDDA(HDC hdc,int xs,int ys,int xe,int ye,COLORREF color)
-{
-   int dx=xe-xs;
-   int dy=ye-ys;
-    SetPixel(hdc,xs,ys,color);
-   if(abs(dx)>=abs(dy))
- {
-  int x=xs,xinc= dx>0?1:-1;
-  double y=ys,yinc=(double)dy/dx*xinc;
-  while(x!=xe)
- {
-  x+=xinc;
-  y+=yinc;
-  SetPixel(hdc,x,round(y),color);
- }
- }
- else
-{
-  int y=ys,yinc= dy>0?1:-1;
-  double x=xs,xinc=(double)dx/dy*yinc;
- while(y!=ye)
-{
-   x+=xinc;
-   y+=yinc;
-   SetPixel(hdc,round(x),y,color);
-}
-}
-}
-void midPoint(HDC hdc,int X1, int Y1, int X2, int Y2,COLORREF color)
-{
-    int dx = X2 - X1;
-    int dy = Y2 - Y1;
-    int d = dy - (dx/2);
-    int x = X1, y = Y1;
-   SetPixel(hdc,x,y,color);
 
 
-    while (x < X2)
+void draw_direct_elipse(HDC hdc,int xc,int yc,int A,int B,COLORREF color){
+    float x=A;
+    float y=0;
+  //       SetPixel(hdc,round(xc+x),round(yc+y),color);
+    //     SetPixel(hdc,round(xc+x),round(yc-y),color);
+      //   SetPixel(hdc,round(xc-x),round(yc+y),color);
+        // SetPixel(hdc,round(xc-x),round(yc-y),color);
+         SetPixel(hdc,round(xc+y),round(yc+x),color);
+         SetPixel(hdc,round(xc+y),round(yc-x),color);
+         SetPixel(hdc,round(xc-y),round(yc+x),color);
+         SetPixel(hdc,round(xc-y),round(yc-x),color);
+
+    while(x>0)
     {
-        x++;
 
+         y=round(sqrt((float)(1-((x*x)/(A*A)))*(B*B)));
+         x=x-0.1;
+//         SetPixel(hdc,round(xc+x),round(yc+y),color);
+  //       SetPixel(hdc,round(xc+x),round(yc-y),color);
+    //     SetPixel(hdc,round(xc-x),round(yc+y),color);
+      //   SetPixel(hdc,round(xc-x),round(yc-y),color);
+         SetPixel(hdc,round(xc+y),round(yc+x),color);
+         SetPixel(hdc,round(xc+y),round(yc-x),color);
+         SetPixel(hdc,round(xc-y),round(yc+x),color);
+         SetPixel(hdc,round(xc-y),round(yc-x),color);
 
-        if (d < 0)
-            d = d + dy;
-
-
-        else
-        {
-            d += (dy - dx);
-            y++;
-        }
-
-        SetPixel(hdc,x,y,color);
+        // cout<<x<<" "<<y<<endl;
 
     }
 }
-void parametric_line(HDC hdc,int x1,int x2,int y1,int y2,COLORREF color ){
- for(double t=0;t<=1;t+=0.001){
-    int x=round(x1+t*(x2-x1));
-    int y=round(y1+t*(y2-y1));
-    SetPixel(hdc,x,y,color);
- }
 
-}
 void draw_polar_elipse(HDC hdc,int xc,int yc,int A,int B,COLORREF color){
 for(double theta=0;theta<6.28;theta+=0.001)
 {
@@ -523,10 +558,6 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				case FILE_MENU_EXIT:
 					PostQuitMessage(0);
 					break;
-//FILE_MENU_EXIT,
-	//DDA,Midpoint,Parametric,
-	//Direct,Polar,Mid,bezier,
-	//hermite,splines
                 case Save:
                     Save_drawing(hdc,"consol.txt",rect);
                     break;
@@ -579,6 +610,32 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     SimpleDDA(hdc,rect.right-100,rect.top+100,rect.right-100,rect.bottom-100,RGB(255,0,0));
                     SimpleDDA(hdc,rect.left+100,rect.top+100,rect.right-100,rect.top+100,RGB(255,0,0));
                     SimpleDDA(hdc,rect.left+100,rect.bottom-100,rect.right-100,rect.bottom-100,RGB(255,0,0));
+//                     p2[temp2].x=rect.left+100;
+//                     p2[temp2].y=rect.top+100;
+//                     temp2++;
+//                     p2[temp2].x=rect.left+100;
+//                     p2[temp2].y=rect.bottom-100;
+//                     temp2++;
+//                     p2[temp2].x=rect.right-100;
+//                     p2[temp2].y=rect.top+100;
+//                     temp2++;
+//                     p2[temp2].x=rect.right-100;
+//                     p2[temp2].y=rect.bottom-100;
+//                     temp2++;
+//                     p2[temp2].x=rect.left+100;
+//                     p2[temp2].y=rect.top+100;
+//                     temp2++;
+//                     p2[temp2].x=rect.right-100;
+//                     p2[temp2].y=rect.top+100;
+//                     temp2++;
+//                     p2[temp2].x=rect.left+100;
+//                     p2[temp2].y=rect.bottom-100;
+//                     temp2++;
+//                     p2[temp2].x=rect.right-100;
+//                     p2[temp2].y=rect.bottom-100;
+//                     temp2++;
+//
+//                    PolygonClip(hdc,p2,temp2,rect.left,rect.top,rect.right,rect.bottom);
                     break;
 
 			}
@@ -658,7 +715,25 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     //r=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
                     parametric_line(hdc,xs,ys,xe,ye,RGB(255,0,0));
                 }
-            }else if(option=="EllipseM"){
+
+            }
+            else if(option=="EllipseD"){
+                if(first){
+                    xs = LOWORD(lParam);
+                    ys = HIWORD(lParam);
+                    first=false;
+                }else{
+                    xe = LOWORD(lParam);
+                    ye = HIWORD(lParam);
+                    first=true;
+                    A=50;
+                    B=30;
+                    //r=sqrt((xe-xs)*(xe-xs)+(ye-ys)*(ye-ys));
+                  draw_direct_elipse(hdc,xs,ys,A,B,RGB(255,0,0));
+                }
+            }
+
+            else if(option=="EllipseM"){
                 if(first){
                     xs = LOWORD(lParam);
                     ys = HIWORD(lParam);
@@ -734,62 +809,36 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             }
             case WM_LBUTTONDBLCLK:
                 if(option=="clippingP"){
-
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                p2[temp2].x=x;
-                p2[temp2].y=y;
-                temp2++;
-                PolygonClip(hdc,p2,temp2,rect.left+100,rect.top+100,rect.right-100,rect.bottom-100);
-                temp2=0;
-            }
+                if(temp==0){
+                     p2[temp2].x = LOWORD(lParam);
+                     p2[temp2].y= HIWORD(lParam);
+                     temp2++;
+                     temp=1;
+                }else if (temp==1){
+                    p2[temp2].x = LOWORD(lParam);
+                    p2[temp2].y= HIWORD(lParam);
+                    temp2++;
+                    temp=2;
+                }else if (temp==2){
+                    p2[temp2].x = LOWORD(lParam);
+                    p2[temp2].y= HIWORD(lParam);
+                    temp2++;
+                    temp=3;
+                }else if (temp==3){
+                    p2[temp2].x = LOWORD(lParam);
+                     p2[temp2].y= HIWORD(lParam);
+                     temp2++;
+                     PolygonClip(hdc,p2,temp2,rect.left+100,rect.top+100,rect.right-100,rect.bottom-100);
+                    temp=0;
+                    temp2=0;
+                }
+                        }
 
             break;
 
 
-            /*
 
-            else if(algo == "flood"){
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                NRFloodFill(hdc,x,y,Dcolor,Fcolor);
-            }else if(algo=="clipping"){
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                p2[flag2].x=x;
-                p2[flag2].y=y;
-                flag2++;
-            }
-            */
             break;
-            /*
-
-            case WM_LBUTTONDBLCLK:
-             if(algo=="clippingL"){
-
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                p2[flag2].x=x;
-                p2[flag2].y=y;
-                flag2++;
-                CohenSuth(hdc,p2,flag2,rect.left+100,rect.top+100,rect.right-100,rect.bottom-100);
-                CohenSuth(hdc,xs,ys,xe,ye,xc,yc,x,y);
-
-                flag2=0;
-            }
-            */
-            /*
-             if(algo=="clippingP"){
-
-                x = LOWORD(lParam);
-                y = HIWORD(lParam);
-                p2[flag2].x=x;
-                p2[flag2].y=y;
-                flag2++;
-                PolygonClip(hdc,p2,flag2,rect.left+100,rect.top+100,rect.right-100,rect.bottom-100);
-                flag2=0;
-            }
-            */
 
             break;
 

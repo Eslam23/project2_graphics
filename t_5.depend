@@ -1,10 +1,11 @@
 # depslib dependency file v1.0
-1556493777 source:d:\third level\second term\graphics\t_5\main.cpp
+1556675393 source:d:\third level\second term\graphics\t_5\main.cpp
+	<string>
+	<sstream>
+	<cmath>
+	<math.h>
 	<tchar.h>
 	<windows.h>
-	<stdio.h>
-	<list>
-	<fstream>
 	<stack>
 	<bits/stdc++.h>
 
